@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
+                
+            }
+        }
+        stage('Build docker image') {
+            steps {
+                script{
+                    sh 'docker build -t luis486/api .'
+                }
+            }
+        }
+        stage('Docker push'){
+            steps {
+                script{
+                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                    sh 'docker login -u luis486 -p ${dockerhubpwd}'
+                    }
+                    sh 'docker push luis486/api'
+                }
+            }
+        }
+        
+
+    }
+}
