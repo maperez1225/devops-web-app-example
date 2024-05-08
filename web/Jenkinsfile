@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    stages {
+
+         stage("Cleanup Workspace"){
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
+                
+            }
+        }
+
+        stage("Build Application"){
+            steps {
+                sh "npm version"
+                sh "npm install"
+            }
+        }
+
+        stage('Build docker image') {
+            steps {
+                script{
+                    sh "docker build -t ${IMAGE_WEB}:${IMAGE_TAG} ." //Esto se debe arreglar para ser ingresado como parámetro
+                }
+            }
+        }
+        stage('Docker push'){
+            steps {
+                script{
+                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                    sh "docker login -u ${username} -p ${password} ${ACR_REPO}"
+                    }
+                    sh "docker push ${IMAGE_WEB}:${IMAGE_TAG}"
+                }
+            }
+        }
+        
+
+    }
+}
