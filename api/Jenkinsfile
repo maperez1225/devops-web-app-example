@@ -2,16 +2,24 @@ pipeline {
     agent any
     
     stages {
+
+        stage("Cleanup Workspace"){
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
                 
             }
         }
+
         stage('Build docker image') {
             steps {
                 script{
-                    sh 'docker build -t luis486/api .'
+                    sh "docker build -t ${IMAGE_API}:${IMAGE_TAG} ." //Esto se debe arreglar para ser ingresado como parámetro
                 }
             }
         }
@@ -19,9 +27,9 @@ pipeline {
             steps {
                 script{
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                    sh 'docker login -u luis486 -p ${dockerhubpwd}'
+                    sh "docker login -u ${username} -p ${password} ${ACR_REPO}"
                     }
-                    sh 'docker push luis486/api'
+                    sh "docker push ${IMAGE_API}:${IMAGE_TAG}"
                 }
             }
         }
