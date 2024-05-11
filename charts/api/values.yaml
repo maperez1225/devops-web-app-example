@@ -10,6 +10,11 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+environment:
+  GDATABASE: "postgres"
+  PGUSER: "postgres"
+  PGPASSWORD: "postgres"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -41,16 +46,11 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: 8080
-  selector:
-    app: api
+  port: 8080
+
 
 ingress:
-  enabled: true
+  enabled: false
   className: "nginx"
   annotations: {}
     # kubernetes.io/ingress.class: nginx
@@ -133,10 +133,3 @@ affinity: {}
 args:
 - python
 - app.py
-env:
-- name: PGDATABASE
-  value: postgres
-- name: PGUSER
-  value: postgres
-- name: PGPASSWORD
-  value: postgres
