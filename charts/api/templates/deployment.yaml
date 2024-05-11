@@ -45,7 +45,6 @@ spec:
               port: 80
               containerPort: {{ .Values.service.port }}
               targetPort: 8080
-              
               protocol: TCP
           env:
             - name: GDATABASE
