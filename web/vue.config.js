@@ -5,7 +5,7 @@ module.exports = {
     progress: false,
     proxy: {
       '^/api': {
-        target: 'http://api',
+        target: 'http://api:80',
         changeOrigin: true,
         secure: false,
         logLevel: 'debug',
