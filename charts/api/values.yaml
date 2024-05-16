@@ -81,11 +81,11 @@ resources: {}
 
 livenessProbe:
   httpGet:
-    path: /
+    path: /api
     port: 80
 readinessProbe:
   httpGet:
-    path: /
+    path: /api
     port: 80
 
 autoscaling:
