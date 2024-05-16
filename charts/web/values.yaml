@@ -42,13 +42,6 @@ securityContext: {}
 service:
   type: NodePort
   port: 80
-  ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: 80
-  selector:
-    app: web
 
 env:
   - name: "PORT"
@@ -56,21 +49,15 @@ env:
 
 ingress:
   enabled: false
-  className: "nginx"
+  className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-  - host: "web.${environment.name == 'ephemeral' ? providers.ephemeral-kubernetes.outputs.default-hostname : var.hostname}"
-    http:
+    - host: chart-example.local
       paths:
-      - backend:
-          service:
-            name: web
-            port:
-              number: 80
-        path: /
-        pathType: Prefix
+        - path: /
+          pathType: ImplementationSpecific
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -89,25 +76,13 @@ resources: {}
   #   memory: 128Mi
 
 livenessProbe:
-  failureThreshold: 3
   httpGet:
     path: /
     port: 80
-    scheme: HTTP
-  initialDelaySeconds: 90
-  periodSeconds: 5
-  successThreshold: 1
-  timeoutSeconds: 3
 readinessProbe:
-  failureThreshold: 90
   httpGet:
     path: /
     port: 80
-    scheme: HTTP
-  initialDelaySeconds: 2
-  periodSeconds: 1
-  successThreshold: 2
-  timeoutSeconds: 3
 
 autoscaling:
   enabled: false
@@ -134,4 +109,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
