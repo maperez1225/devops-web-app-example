@@ -10,12 +10,6 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-environment:
-  - name: HOSTNAME
-    value: "web.${environment.name == 'ephemeral' ? providers.ephemeral-kubernetes.outputs.default-hostname : var.hostname}"
-  - name: VUE_APP_USERNAME
-    value: ${local.username}
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -46,15 +40,19 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  port: 8080
+  type: NodePort
+  port: 80
   ports:
   - name: http
     port: 80
     protocol: TCP
-    targetPort: 8080
+    targetPort: 80
   selector:
     app: web
 
+env:
+  - name: "PORT"
+    value: "80"
 
 ingress:
   enabled: false
@@ -94,7 +92,7 @@ livenessProbe:
   failureThreshold: 3
   httpGet:
     path: /
-    port: 8080
+    port: 80
     scheme: HTTP
   initialDelaySeconds: 90
   periodSeconds: 5
@@ -104,7 +102,7 @@ readinessProbe:
   failureThreshold: 90
   httpGet:
     path: /
-    port: 8080
+    port: 80
     scheme: HTTP
   initialDelaySeconds: 2
   periodSeconds: 1

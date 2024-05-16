@@ -42,20 +42,6 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          env:
-              - name: HOSTNAME
-                value: |
-                  {{- if eq .Values.environment.name "ephemeral" -}}
-                    web.{{ .Values.providers.ephemeral-kubernetes.outputs.default-hostname }}
-                  {{- else -}}
-                    {{ .Values.var.hostname }}
-                  {{- end -}}
-              - name: VUE_APP_USERNAME
-                value: "{{ .Values.local.username }}"
-          livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
-          readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

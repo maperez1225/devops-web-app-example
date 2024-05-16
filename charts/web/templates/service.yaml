@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "web.labels" . | nindent 4 }}
 spec:
+  type: {{ .Values.service.type }}
   ports:
     {{- toYaml .Values.service.ports | nindent 4}}
   selector:
