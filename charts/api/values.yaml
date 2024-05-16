@@ -10,11 +10,6 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-environment:
-  GDATABASE: "postgres"
-  PGUSER: "postgres"
-  PGPASSWORD: "postgres"
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -48,24 +43,25 @@ service:
   type: ClusterIP
   port: 80
 
+env:
+  - name: "PGDATABASE"
+    value: "postgres"
+  - name: "PGUSER"
+    value: "postgres"
+  - name: "PGPASSWORD"
+    value: "postgres"
 
 ingress:
   enabled: false
-  className: "nginx"
+  className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-  - host: "api.${environment.name == 'ephemeral' ? providers.ephemeral-kubernetes.outputs.default-hostname : var.hostname}"
-    http:
+    - host: chart-example.local
       paths:
-      - backend:
-          service:
-            name: api
-            port:
-              number: 80
-        path: /
-        pathType: Prefix
+        - path: /
+          pathType: ImplementationSpecific
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -84,25 +80,13 @@ resources: {}
   #   memory: 128Mi
 
 livenessProbe:
-  failureThreshold: 30
   httpGet:
-    path: /health
+    path: /
     port: 80
-    scheme: HTTP
-  initialDelaySeconds: 90
-  periodSeconds: 10
-  successThreshold: 1
-  timeoutSeconds: 3
 readinessProbe:
-  failureThreshold: 90
   httpGet:
-    path: /health
+    path: /
     port: 80
-    scheme: HTTP
-  initialDelaySeconds: 2
-  periodSeconds: 1
-  successThreshold: 2
-  timeoutSeconds: 3
 
 autoscaling:
   enabled: false
@@ -129,7 +113,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-args:
-- python
-- app.py
