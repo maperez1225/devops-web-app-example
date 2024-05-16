@@ -338,9 +338,8 @@ primary:
     ## Specify dictionary of scripts to be run at first boot
     ## e.g:
     scripts:
-      my_init_script.sh: |
-         #!/bin/sh
-         PGPASSWORD=postgres psql -U postgres -d postgres -c 'CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL, created_at timestamp default NULL)'
+      init.sql: |
+          CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL, created_at timestamp default NULL)
     ##
     ## scripts: {}
     ## @param primary.initdb.scriptsConfigMap ConfigMap with scripts to be run at first boot
