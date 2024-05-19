@@ -74,8 +74,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Construir la imagen Docker
-                    sh 'docker build -t luis486/api:latest .'
+                    dir('api'){
+                        sh 'docker build -t luis486/api:latest .'
+                    }
+                    
                 }
             }
         }
