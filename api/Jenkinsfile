@@ -87,7 +87,6 @@ pipeline {
                 script {
                     // Iniciar sesión en Docker Hub y empujar la imagen
                     sh '''
-                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
                     docker push luis486/api:latest
                     '''
                 }
@@ -107,4 +106,3 @@ pipeline {
         }
     }
 }
-
