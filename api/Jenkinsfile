@@ -19,6 +19,19 @@ pipeline {
             }
         }
 
+        stage('Install Python if not available') {
+            steps {
+                script {
+                    // Verificar si Python está instalado
+                    def pythonInstalled = sh(script: 'command -v python', returnStatus: true) == 0
+                    if (!pythonInstalled) {
+                        // Instalar Python usando el gestor de paquetes de tu sistema
+                        sh 'sudo apt update && sudo apt install -y python3'
+                    }
+                }
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 script {
