@@ -14,7 +14,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
                 // Clona el repositorio desde GitHub
             }
         }
@@ -23,11 +23,20 @@ pipeline {
             steps {
                 script {
                     // Verificar si Python está instalado
-                    def pythonInstalled = sh(script: 'command -v python', returnStatus: true) == 0
+                    def pythonInstalled = sh(script: 'command -v python3', returnStatus: true) == 0
                     if (!pythonInstalled) {
                         // Instalar Python usando el gestor de paquetes de tu sistema
-                        sh 'sudo apt update && sudo apt install -y python3'
+                        sh 'sudo apt update && sudo apt install -y python3 python3-pip python3-venv'
                     }
+                }
+            }
+        }
+
+        stage('Create Virtual Environment') {
+            steps {
+                script {
+                    // Crear un entorno virtual
+                    sh 'python3 -m venv venv'
                 }
             }
         }
@@ -35,8 +44,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    dir('API') { // Cambia al directorio API
-                        sh 'pip install -r requirements.txt' // Instala las dependencias listadas en requirements.txt
+                    dir('api') { // Cambia al directorio API
+                        // Activar el entorno virtual y luego instalar las dependencias
+                        sh '''
+                        . ../venv/bin/activate
+                        pwd
+                        ls -l
+                        pip install -r ./requirements.txt
+                        '''
                     }
                 }
             }
@@ -45,8 +60,12 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                    dir('API') { // Cambia al directorio API
-                        sh 'python -m unittest test.py' // Ejecuta las pruebas unitarias definidas en test.py
+                    dir('api') { // Cambia al directorio API
+                        // Activar el entorno virtual y luego ejecutar las pruebas unitarias
+                        sh '''
+                        . ../venv/bin/activate
+                        python -m unittest ./test.py
+                        '''
                     }
                 }
             }
@@ -55,7 +74,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t luis486/api:latest .' // Construye la imagen Docker
+                    // Construir la imagen Docker
+                    sh 'docker build -t luis486/api:latest .'
                 }
             }
         }
@@ -63,8 +83,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin" // Inicia sesión en Docker Hub
-                    sh 'docker push luis486/api:latest' // Empuja la imagen a Docker Hub
+                    // Iniciar sesión en Docker Hub y empujar la imagen
+                    sh '''
+                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    docker push luis486/api:latest
+                    '''
                 }
             }
         }
@@ -82,3 +105,4 @@ pipeline {
         }
     }
 }
+
