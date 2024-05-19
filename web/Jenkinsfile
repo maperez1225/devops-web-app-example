@@ -1,45 +1,124 @@
 pipeline {
     agent any
-    stages {
+    
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-pwd') // Configura las credenciales para Docker Hub
+    }
 
-         stage("Cleanup Workspace"){
+    stages {
+        stage('Cleanup Workspace') {
             steps {
-                cleanWs()
+                cleanWs() // Limpia el espacio de trabajo para evitar conflictos con archivos anteriores
             }
         }
 
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
-                
+                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/maperez1225/devops-web-app-example']]])
+                // Clona el repositorio desde GitHub
             }
         }
 
-        stage("Build Application"){
+        stage('Install Node.js and Dependencies') {
             steps {
-                sh "npm version"
-                sh "npm install"
-            }
-        }
-
-        stage('Build docker image') {
-            steps {
-                script{
-                    sh "docker build -t ${IMAGE_WEB}:${IMAGE_TAG} ." //Esto se debe arreglar para ser ingresado como parámetro
-                }
-            }
-        }
-        stage('Docker push'){
-            steps {
-                script{
-                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                    sh "docker login -u ${username} -p ${password} ${ACR_REPO}"
+                script {
+                    // Verificar si Node.js está instalado
+                    def nodeInstalled = sh(script: 'node --version', returnStatus: true) == 0
+                    if (!nodeInstalled) {
+                        // Instalar Node.js usando el gestor de paquetes de tu sistema
+                        sh 'sudo apt update && sudo apt install -y nodejs npm'
                     }
-                    sh "docker push ${IMAGE_WEB}:${IMAGE_TAG}"
                 }
             }
         }
-        
 
+        stage('Install Vue.js Dependencies') {
+            steps {
+                script {
+                    dir('web') {
+                        // Instalar las dependencias de Vue.js
+                        sh 'npm install'
+                    }
+                }
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                script {
+                    dir('web/tests/unit') {
+                        // Ejecutar pruebas unitarias
+                        sh 'npm test'
+                    }
+                }
+            }
+        }
+
+        stage('Run Integration Tests') {
+            steps {
+                script {
+                    dir('web/tests/integ') {
+                        // Ejecutar pruebas de integración
+                        sh 'npm test'
+                    }
+                }
+            }
+        }
+
+        stage('Lint with ESLint') {
+            steps {
+                script {
+                    dir('web') {
+                        // Ejecutar ESLint para realizar análisis estático del código
+                        sh 'npm run lint'
+                    }
+                }
+            }
+        }
+
+        stage('Build Vue.js App') {
+            steps {
+                script {
+                    dir('web') {
+                        // Compilar el proyecto Vue.js
+                        sh 'npm run build'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dir('web') {
+                        // Construir la imagen Docker
+                        sh 'docker build -t luis486/web:latest .'
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Iniciar sesión en Docker Hub y empujar la imagen
+                    sh '''
+                    docker push luis486/web:latest
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs() // Limpia el espacio de trabajo después de la ejecución del pipeline
+        }
+        success {
+            echo 'Pipeline completed successfully!' // Mensaje de éxito
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.' // Mensaje de fallo
+        }
     }
 }
