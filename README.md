@@ -1,6 +1,6 @@
 # Aplicación de Votación
 
-## *Resumen*
+## Resumen
 
 Esta es una aplicación sencilla de votación que permite a los usuarios votar y realiza el cálculo de los votos. La aplicación sigue una arquitectura de tres capas:
 
