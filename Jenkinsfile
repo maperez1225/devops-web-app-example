@@ -69,7 +69,7 @@ spec:
       steps {
         container('node') {
           sh 'npm install --prefix ./web'
-          //sh 'npm run lint --prefix ./web'
+          sh 'npm run lint --prefix ./web'
           sh 'npm run test --prefix ./web'
         }
       }
