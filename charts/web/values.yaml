@@ -40,8 +40,12 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 80
+
+env:
+  - name: "PORT"
+    value: "80"
 
 ingress:
   enabled: false
@@ -74,11 +78,11 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /
-    port: http
+    port: 80
 readinessProbe:
   httpGet:
     path: /
-    port: http
+    port: 80
 
 autoscaling:
   enabled: false

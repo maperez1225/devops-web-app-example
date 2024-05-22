@@ -7,7 +7,8 @@ class IntegTest(unittest.TestCase):
             'Content-Type': 'application/x-www-form-urlencoded',
             'Access-Control-Allow-Origin': '*',
         }
-        response = requests.post("http://api/api/vote", headers=headers, data="vote=a")
+        # Reemplaza "api" con "localhost:8080" o la dirección de host adecuada
+        response = requests.post("http://localhost:80/api/vote", headers=headers, data="vote=a")
         self.assertEqual(response.status_code, 200)
 
 if __name__ == '__main__':

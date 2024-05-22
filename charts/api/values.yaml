@@ -43,6 +43,14 @@ service:
   type: ClusterIP
   port: 80
 
+env:
+  - name: "PGDATABASE"
+    value: "postgres"
+  - name: "PGUSER"
+    value: "postgres"
+  - name: "PGPASSWORD"
+    value: "postgres"
+
 ingress:
   enabled: false
   className: ""
@@ -73,12 +81,12 @@ resources: {}
 
 livenessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /api
+    port: 80
 readinessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /api
+    port: 80
 
 autoscaling:
   enabled: false
