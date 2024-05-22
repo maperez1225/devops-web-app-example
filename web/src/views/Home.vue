@@ -46,7 +46,7 @@ export default {
     window.axios.get('/api/vote', { headers }).then((res) => {
       console.log("Got votes from API", res)
 
-      const data = res.data;
+      //const data = res.data;
       const votesByOption = res.data.reduce((acc, curr) => {
         const [option, nVotes] = curr
         acc[option] = nVotes
@@ -76,9 +76,9 @@ export default {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Access-Control-Allow-Origin': '*',
       };
-      const self = this;
+      //const self = this;
       window.axios.post('/api/vote', `vote=${v}`, { headers }).then(() => {
-        this.results[v]++
+        this.results[v] += 1
         console.log(`Did cast vote`)
       });
     },
