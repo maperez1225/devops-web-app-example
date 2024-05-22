@@ -37,9 +37,15 @@ spec:
     command:
       - cat
     tty: true
+  - name: docker
+    image: docker:latest
+    command:
+      - cat
+    tty: true
+    privileged: true
     volumeMounts:
-    - mountPath: '/var/run/docker.sock'
-      name: docker-socket
+    - name: docker-socket
+      mountPath: '/var/run/docker.sock'
   volumes:
   - name: docker-socket
     hostPath:
@@ -74,12 +80,31 @@ spec:
         }
       }
     }
+    stage('Build images & push') {
+      environment {
+        registryCredential = 'dockerHub'
+      }
+      steps {
+        container('docker') {
+          script {
+            docker.withRegistry( '', 'dockerHub' ) {
+              def apiImage = docker.build("luis486/api:${env.BUILD_ID}", "./api/")
+              apiImage.push()
+              apiImage.push('latest')
+              def webImage = docker.build("luis486/web:${env.BUILD_ID}", "./web/")
+              webImage.push()
+              webImage.push('latest')
+            }
+          }
+        }
+      }
+    }
     stage('Deploy to Kubernetes') {
       steps {
         container('helm') {
           sh "helm upgrade --install postgres ./charts/postgresql"
-          sh "helm upgrade --install api ./charts/api"
-          sh "helm upgrade --install web ./charts/web"
+          sh "helm upgrade --install api ./charts/api --set image.tag=${env.BUILD_ID}"
+          sh "helm upgrade --install web ./charts/web --set image.tag=${env.BUILD_ID}"
         }
       }
     }
