@@ -1,5 +1,16 @@
 # Aplicación de Votación
 
+## Credits
+Based from repository [garden-io/web-app-example](https://github.com/garden-io/web-app-example)
+
+Used for educational purposes to complete a workshop in university distributed systems course.
+
+## Integrantes
+
+Martin Perez Lopez y Luis Alfonso Murcia Quintero
+Sistemas Distribuidos 2024-1
+Universidad Icesi
+
 ## Resumen
 
 Esta es una aplicación sencilla de votación que permite a los usuarios votar y realiza el cálculo de los votos. La aplicación sigue una arquitectura de tres capas:
