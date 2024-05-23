@@ -8,7 +8,9 @@ Used for educational purposes to complete a workshop in university distributed s
 ## Integrantes
 
 Martin Perez Lopez y Luis Alfonso Murcia Quintero
+
 Sistemas Distribuidos 2024-1
+
 Universidad Icesi
 
 ## Resumen
